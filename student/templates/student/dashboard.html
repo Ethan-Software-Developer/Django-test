@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultra Modern Student Housing</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Space Grotesk", "sans-serif"],
+            },
+            animation: {
+              loading: "loading 2s infinite",
+              float: "float 3s ease-in-out infinite",
+              shine: "shine 3s infinite",
+            },
+            keyframes: {
+              loading: {
+                "0%": { transform: "translateX(-100%)" },
+                "100%": { transform: "translateX(100%)" },
+              },
+              float: {
+                "0%, 100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-10px)" },
+              },
+              shine: {
+                "0%": { transform: "translateX(-100%)" },
+                "100%": { transform: "translateX(100%)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-slate-900 text-slate-50 font-sans relative overflow-x-hidden"
+  >
+    <!-- Gradient Background -->
+    <div class="fixed inset-0 pointer-events-none">
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.15),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(239,68,68,0.1),transparent_60%)]"
+      ></div>
+    </div>
+
+    <!-- Loading Bar -->
+    <div
+      class="h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-600 fixed top-0 left-0 w-full z-50 animate-loading"
+    ></div>
+
+    <!-- Navbar -->
+    <nav
+      class="sticky top-0 z-40 bg-slate-800/80 backdrop-blur border-b border-white/10"
+    >
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a href="#" class="flex items-center gap-2">
+          <i class="fas fa-building-shield text-xl"></i>
+          <span
+            class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-600 bg-clip-text text-transparent"
+          >
+            Nova Housing
+          </span>
+        </a>
+        <a
+          href="/"
+          class="flex items-center gap-2 text-slate-200 hover:text-white transition-colors"
+        >
+          <i class="fas fa-power-off"></i>
+          <span class="hidden sm:inline">Exit Portal</span>
+        </a>
+      </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-6 relative z-10">
+      <!-- Messages -->
+      {% if messages %} {% for message in messages %}
+      <div
+        class="mb-4 p-4 rounded-xl {% if message.tags == 'success' %}bg-emerald-500/10 text-emerald-500 border border-emerald-500/20{% elif message.tags == 'error' %}bg-red-500/10 text-red-500 border border-red-500/20{% else %}bg-indigo-500/10 text-indigo-500 border border-indigo-500/20{% endif %}"
+      >
+        {{ message }}
+        <button class="float-right" data-dismiss="alert">×</button>
+      </div>
+      {% endfor %} {% endif %}
+
+      <!-- Hero Section -->
+      <div
+        class="bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 rounded-2xl p-6 sm:p-8 md:p-12 border border-white/10 backdrop-blur relative overflow-hidden mb-6"
+      >
+        <div class="relative z-10">
+          <h1
+            class="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-indigo-400 bg-clip-text text-transparent mb-4 animate-float"
+          >
+            Welcome, {{ student.user.username }}
+          </h1>
+          <p class="text-slate-400 text-lg">
+            Discover your perfect living space with our advanced room matching
+            system.
+          </p>
+        </div>
+      </div>
+
+      <!-- Room Request Form -->
+      <div
+        class="bg-slate-800/50 backdrop-blur rounded-2xl border border-white/10 mb-6"
+      >
+        <div class="p-6">
+          <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+            <i class="fas fa-wand-magic-sparkles text-indigo-400"></i>
+            Create New Request
+          </h2>
+
+          <form
+            method="post"
+            action="{% url 'request_room' %}"
+            class="space-y-6"
+          >
+            {% csrf_token %}
+            <div class="grid md:grid-cols-2 gap-6">
+              <!-- Room Type -->
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-slate-300">
+                  <i class="fas fa-bed"></i>
+                  Room Configuration
+                </label>
+                <select
+                  id="room_type"
+                  name="room_type"
+                  required
+                  onchange="updateRoomInfo()"
+                  class="w-full bg-slate-700 border border-slate-600 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Select your ideal space</option>
+                  <option value="single">Single Room - Personal Haven</option>
+                  <option value="double">Shared Room - Social Living</option>
+                  <!-- <option value="studio">Studio - Complete Independence</option> -->
+                </select>
+              </div>
+
+              <!-- Move-in Date -->
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-slate-300">
+                  <i class="fas fa-calendar"></i>
+                  Move-in Date
+                </label>
+                <input
+                  type="date"
+                  name="move_in_date"
+                  required
+                  class="w-full bg-slate-700 border border-slate-600 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <!-- Duration -->
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-slate-300">
+                  <i class="fas fa-clock"></i>
+                  Duration
+                </label>
+                <select
+                  name="duration"
+                  required
+                  class="w-full bg-slate-700 border border-slate-600 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Choose your stay duration</option>
+                  <option value="4">1 Semester (4 months) - Short Term</option>
+                  <option value="8">
+                    2 Semesters (8 months) - Academic Year
+                  </option>
+                  <option value="12">
+                    3 Semesters (12 months) - Full Year
+                  </option>
+                </select>
+              </div>
+
+              <!-- Budget Display -->
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-slate-300">
+                  <i class="fas fa-coins"></i>
+                  Monthly Investment
+                </label>
+                <div
+                  class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl p-4 text-center border border-slate-600"
+                >
+                  <p
+                    id="budget_display"
+                    class="text-2xl font-bold text-indigo-400"
+                  >
+                    Select a room type
+                  </p>
+                </div>
+                <input type="hidden" name="budget" id="budget" />
+              </div>
+            </div>
+
+            <!-- Room Info -->
+            <div id="room_info" class="mt-6"></div>
+
+            <!-- Special Requirements -->
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-slate-300">
+                <i class="fas fa-list-check"></i>
+                Special Requirements
+              </label>
+              <textarea
+                name="special_requirements"
+                rows="3"
+                class="w-full bg-slate-700 border border-slate-600 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Tell us about any specific preferences or needs..."
+              ></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all group"
+            >
+              <i
+                class="fas fa-paper-plane group-hover:translate-x-1 transition-transform"
+              ></i>
+              Submit Request
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Request History -->
+      <div
+        class="bg-slate-800/50 backdrop-blur rounded-2xl border border-white/10"
+      >
+        <div class="p-6">
+          <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+            <i class="fas fa-history text-indigo-400"></i>
+            Request History
+          </h2>
+
+          {% if room_requests %}
+          <div class="space-y-4">
+            {% for request in room_requests %}
+            <div class="bg-slate-800 rounded-xl p-4 border border-slate-700">
+              <div class="grid sm:grid-cols-2 md:grid-cols-5 gap-4">
+                <div>
+                  <p class="text-slate-400 text-sm">Room Type</p>
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-home text-indigo-400"></i>
+                    <span class="text-slate-200"
+                      >{{ request.get_room_type_display }}</span
+                    >
+                  </div>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-sm">Move-in Date</p>
+                  <p class="text-slate-200">{{ request.move_in_date }}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-sm">Duration</p>
+                  <p class="text-slate-200">{{ request.duration }} months</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-sm">Budget</p>
+                  <p class="text-slate-200">£{{ request.budget }}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-sm">Status</p>
+                  <span
+                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm {% if request.status == 'accepted' %} bg-emerald-500/10 text-emerald-500 {% elif request.status == 'declined' %} bg-red-500/10 text-red-500 {% else %} bg-yellow-500/10 text-yellow-500 {% endif %}"
+                  >
+                    <i
+                      class="fas {% if request.status == 'accepted' %}fa-check-circle{% elif request.status == 'declined' %}fa-times-circle{% else %}fa-clock{% endif %}"
+                    ></i>
+                    {{ request.status|title }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-12">
+            <i
+              class="fas fa-inbox text-4xl text-slate-600 mb-4 animate-float"
+            ></i>
+            <p class="text-slate-400">
+              Start your journey by submitting your first room request above.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Room configuration data
+      const roomBudgets = {
+        single: 3100,
+        double: 2600,
+        // studio: 3200,
+      };
+
+      const roomDescriptions = {
+        single: {
+          image:
+            "https://raw.githubusercontent.com/Ethan-Software-Developer/University-imagestry2/refs/heads/master/single.jpg?token=GHSAT0AAAAAAC4ULPJRKV5FH4JM47GGAKGQZ33PMRQ",
+          title: "Personal Haven - Single Room",
+          description:
+            "Your private sanctuary for focused study and peaceful living",
+          features: [
+            "Premium single bed with ergonomic mattress",
+            "Designer study station with ambient lighting",
+            "Smart storage solutions with built-in organizers",
+            "High-speed fiber internet connection",
+            "Climate control and air purification system",
+            "Soundproof walls for maximum privacy",
+          ],
+        },
+        double: {
+          image:
+            "https://raw.githubusercontent.com/Ethan-Software-Developer/University-imagestry2/refs/heads/master/shared.jpg?token=GHSAT0AAAAAAC4ULPJQCFCPRJE2OYZXRW76Z33PK6A",
+          title: "Social Living - Double Room",
+          description:
+            "Perfect balance of private space and social interaction",
+          features: [
+            "Two carefully separated living zones",
+            "Individual study pods with acoustic panels",
+            "Shared lounge area for socializing",
+            "Smart room divider system",
+            "Dual climate control zones",
+            "Enhanced soundproofing between spaces",
+          ],
+        },
+      };
+
+      // Function to update room information with animation
+      function updateRoomInfo() {
+        const roomType = document.getElementById("room_type").value;
+        const budgetDisplay = document.getElementById("budget_display");
+        const budgetInput = document.getElementById("budget");
+        const roomInfo = document.getElementById("room_info");
+
+        if (roomType && roomBudgets[roomType]) {
+          const budget = roomBudgets[roomType];
+          budgetDisplay.textContent = `£${budget.toLocaleString()} per month`;
+          budgetInput.value = budget;
+
+          const roomData = roomDescriptions[roomType];
+          roomInfo.innerHTML = `
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 opacity-0 transform translate-y-4 transition-all duration-500">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <img 
+                                    src="${roomData.image}" 
+                                    alt="${roomData.title}" 
+                                    class="w-full h-48 md:h-64 object-cover rounded-lg shadow-lg"
+                                    loading="lazy"
+                                />
+                            </div>
+                            <div class="space-y-4">
+                                <h3 class="text-xl font-bold text-indigo-400">${
+                                  roomData.title
+                                }</h3>
+                                <p class="text-slate-300">${
+                                  roomData.description
+                                }</p>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-indigo-400 mb-2">✨ Premium Features</h4>
+                                    <ul class="space-y-2">
+                                        ${roomData.features
+                                          .map(
+                                            (feature) => `
+                                            <li class="flex items-start gap-2 text-slate-300">
+                                                <span class="text-indigo-400 mt-1">⚡</span>
+                                                <span>${feature}</span>
+                                            </li>
+                                        `
+                                          )
+                                          .join("")}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+          // Animate the content appearance
+          requestAnimationFrame(() => {
+            const content = roomInfo.firstElementChild;
+            content.classList.remove("opacity-0", "translate-y-4");
+          });
+        } else {
+          budgetDisplay.textContent = "Select a room type";
+          budgetInput.value = "";
+          roomInfo.innerHTML = "";
+        }
+      }
+
+      // Hide loading bar after page load
+      window.addEventListener("load", () => {
+        document.querySelector(".animate-loading").style.display = "none";
+      });
+
+      // Form validation
+      document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        });
+      });
+
+      // Initialize tooltips and other Bootstrap features if needed
+      if (typeof bootstrap !== "undefined") {
+        const tooltipTriggerList = [].slice.call(
+          document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      }
+    </script>
+  </body>
+</html>
