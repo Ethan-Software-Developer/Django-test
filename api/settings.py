@@ -82,12 +82,8 @@ WSGI_APPLICATION = 'api.wsgi.app'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'University-delta',  # replace with your MongoDB database name
-        'CLIENT': {
-            'host': 'mongodb+srv://ethansevenster5:P1R9ZyJDhUzJcKzr@cluster0.osq2l.mongodb.net/',  # your MongoDB connection string
-            'authSource': 'admin',  # optional, use if your MongoDB uses authentication
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Or provide an absolute path if needed
     }
 }
 
