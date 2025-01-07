@@ -52,11 +52,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'api.urls'
 
+# settings.py
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [],  # Leave empty, since we're using app directories
+        'APP_DIRS': True,  # Enable app directory templates
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
